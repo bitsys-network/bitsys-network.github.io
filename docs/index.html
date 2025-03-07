@@ -1,11 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>bitsys.network</title>
     <link rel="icon" type="image/png" href="/favicon.png">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --bg-color-dark: #000;
+            --bg-color-light: #fff;
+            --transition-time: 0.5s;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -13,17 +21,114 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #000; /* Assuming a dark background */
+            background-color: var(--bg-color-dark);
+            transition: background-color var(--transition-time);
+        }
+        html[data-theme='light'] body {
+            background-color: var(--bg-color-light);
         }
         img {
             width: 85%;
             max-width: 400px;
             padding: 20px;
             box-sizing: border-box;
+            transition: opacity var(--transition-time);
+        }
+        /* Control pulse intensity */
+        .gentle-pulse {
+            animation: pulse 10s infinite;
+            animation-timing-function: ease-in-out;
+        }
+        /* Theme toggle styles */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #fff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        html[data-theme='light'] .theme-toggle {
+            color: #000;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.2);
+        }
+        .fa-sun {
+            display: none;
+        }
+        html[data-theme='light'] .fa-moon {
+            display: none;
+        }
+        html[data-theme='light'] .fa-sun {
+            display: inline;
         }
     </style>
 </head>
 <body>
-    <img src="images/LogoWide_OnDark.png" alt="bitsys.network Logo">
+    <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+        <i class="fas fa-sun"></i>
+    </button>
+    <img id="logo" src="images/LogoWide_OnDark.png" alt="bitsys.network Logo" class="animated">
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const logo = document.getElementById('logo');
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            // Theme toggle functionality
+            themeToggle.addEventListener('click', function() {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // Fade out logo
+                logo.style.opacity = '0';
+                
+                // Wait for fade out, then change theme and logo
+                setTimeout(() => {
+                    html.setAttribute('data-theme', newTheme);
+                    logo.src = newTheme === 'dark' ? 
+                        'images/LogoWide_OnDark.png' : 
+                        'images/LogoWide_OnLight.png';
+                    
+                    // Fade in logo
+                    setTimeout(() => {
+                        logo.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            });
+            
+            // Make sure image is loaded before starting animation
+            if (logo.complete) {
+                startAnimation();
+            } else {
+                logo.onload = startAnimation;
+            }
+            
+            function startAnimation() {
+                // Short timeout to ensure browser is ready to animate
+                setTimeout(function() {
+                    logo.classList.add('jackInTheBox');
+                }, 100);
+            }
+            
+            logo.addEventListener('animationend', function(event) {
+                // Only proceed if the jackInTheBox animation has ended
+                if (event.animationName === 'jackInTheBox') {
+                    // Remove the jackInTheBox animation class
+                    logo.classList.remove('jackInTheBox');
+                    
+                    // Add the gentle pulse animation
+                    logo.classList.add('gentle-pulse');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
